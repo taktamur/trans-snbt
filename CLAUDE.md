@@ -1,20 +1,26 @@
-# CLAUDE.md - trans-snbt Project Guide
+# CLAUDE.md - trans-snbt プロジェクトガイド
 
-## Commands
-- Run tool: `deno run --allow-read --allow-write --allow-env main.ts <SNBTディレクトリ>`
-- Run specific phase: `deno run --allow-read --allow-write --allow-env main.ts -p <phase> <SNBTディレクトリ>`
-- Format code: `deno fmt`
-- Lint code: `deno lint`
-- Check types: `deno check main.ts`
-- Generate lockfile: `deno cache --lock=deno.lock --lock-write deps.ts`
+## ファイル
 
-## Code Style Guidelines
-- **Imports**: Use import maps in deps.ts for dependency management
-- **Types**: Always use TypeScript interfaces and types
-- **Formatting**: Follow Deno's style guide (use deno fmt)
-- **Function Names**: Use camelCase for functions, PascalCase for classes/interfaces
-- **Error Handling**: Use try/catch blocks with specific error messages
-- **Constants**: Use UPPER_SNAKE_CASE for constants
-- **Async**: Use async/await pattern consistently
-- **Modules**: Prefer ES modules (.ts extension)
-- **Environment**: Use Deno.env.get() with dotenv for configuration
+- extract.json: Minefract のクエストブックの英語と日本語の対を管理する json ファイル
+- .snbt: Minecraft のクエストブックのファイル
+- original/\*.snbt 翻訳前のクエストブックファイル置き場
+- translated/\*.snbt 翻訳後のクエストブックファイル置き場
+
+## コマンド
+
+- snbt ファイルから翻訳ファイルを生成する: `deno run --allow-read --allow-write extract.ts <SNBTファイル> extract.json`
+- claude api を使って翻訳ファイルを翻訳: `deno run --allow-read --allow-write --allow-net --allow-env translate.ts <SNBTファイル> extract.json`
+- 翻訳ファイルを元に、snbt ファイルを翻訳する: `deno run --allow-read --allow-write create.ts <元のSNBTファイル> <翻訳後のSNBTファイル`
+- コード整形: `deno fmt`
+- リント: `deno lint`
+- 型チェック: `deno check main.ts`
+- ロックファイル生成: `deno cache --lock=deno.lock --lock-write deps.ts`
+
+## コードスタイルガイドライン
+
+- **インポート**: deps.ts でインポートマップを使用して依存関係を管理
+- **型**: 常に TypeScript のインターフェースと型を使用
+- **フォーマット**: Deno のスタイルガイドに従う（deno fmt を使用）
+- **エラー処理**: 具体的なエラーメッセージを含む try/catch ブロックを使用
+- **環境**: 設定には dotenv と Deno.env.get()を使用
