@@ -39,6 +39,7 @@ async function retryWithExponentialBackoff<T>(
         errorMessage.includes("rate limit") ||
         errorMessage.includes("429")
       ) {
+        console.log(errorMessage);
         const delay = baseDelay * Math.pow(2, retries);
         console.log(
           `APIが過負荷状態です。${delay}ms後に再試行します (${
@@ -54,6 +55,81 @@ async function retryWithExponentialBackoff<T>(
   }
 }
 
+async function translateWithGemini(text: string): Promise<string> {
+  const apiKey = Deno.env.get("GEMINI_API_KEY");
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY環境変数が設定されていません");
+  }
+
+  return await retryWithExponentialBackoff(
+    async () => {
+      // Gemini API エンドポイント
+      const response = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" +
+          apiKey,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: DEFAULT_TRANSLATION_PROMPT,
+                  },
+                  {
+                    text: text,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              maxOutputTokens: 1024,
+              temperature: 0.2,
+              topP: 0.95,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        const errorObj = JSON.parse(errorText);
+        // 429エラーの場合は特別なメッセージを追加
+        if (response.status === 429) {
+          Deno.stderr.writeSync(new TextEncoder().encode(`Gemini API クォータ制限エラー: ${response.status} ${errorText}\n`));
+          throw new Error(`Gemini API クォータ制限エラー: 日次または月次のAPIクォータを使い切った可能性があります。
+Google AI Studioでクォータを確認してください: https://aistudio.google.com/app/apikeys`);
+        }
+        throw new Error(`Gemini API エラー: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      // Geminiの応答から翻訳テキストを抽出
+      if (
+        result.candidates &&
+        result.candidates.length > 0 &&
+        result.candidates[0].content &&
+        result.candidates[0].content.parts &&
+        result.candidates[0].content.parts.length > 0
+      ) {
+        return result.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Gemini APIからの応答形式が不正です");
+      }
+    },
+    5,
+    2000
+  );
+}
+
+/**
+ * Claude APIを使用して英語から日本語への翻訳を行う
+ */
 async function translateWithClaude(text: string): Promise<string> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
@@ -155,25 +231,30 @@ async function main(): Promise<void> {
 
             // 問題のある前置きや余計な文字を検出
             const problemPhrases = [
-                "Human:",
-                "申し訳ありませんが",
-                "以下のように翻訳",
-                "次のように翻訳",
-                "翻訳は以下の通り",
-                "翻訳結果は以下",
-                "翻訳結果:",
-                "はい、",
-                "わかりました",
-                "理解しました",
-                "私には、著作権で保護された",
-                "著作権保護の対象",
-                "著作権の関係",
-              ];
-            
+              "Human:",
+              "申し訳ありませんが",
+              "以下のように翻訳",
+              "次のように翻訳",
+              "翻訳は以下の通り",
+              "翻訳結果は以下",
+              "翻訳結果:",
+              "はい、",
+              "わかりました",
+              "理解しました",
+              "私には、著作権で保護された",
+              "著作権保護の対象",
+              "著作権の関係",
+            ];
+
             // 改行で始まるかチェック
             const startsWithNewline = translatedText.startsWith("\n");
-            
-            if (problemPhrases.some((phrase) => translatedText.includes(phrase)) || startsWithNewline) {
+
+            if (
+              problemPhrases.some((phrase) =>
+                translatedText.includes(phrase)
+              ) ||
+              startsWithNewline
+            ) {
               console.error(`\n----- 翻訳エラー -----`);
               console.error(`原文: "${item.en}"`);
               console.error(`問題のある翻訳結果: "${translatedText}"`);
