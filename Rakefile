@@ -12,7 +12,7 @@ end
 
 desc "翻訳する"
 task :translate do
-  sh "deno run --allow-read --allow-write --allow-net --allow-env src/translate.ts trans.json"
+  sh "deno run --allow-read --allow-write --allow-net --allow-env src/translate.ts trans.json 2>&1 | tee error.txt"
 end
 
 desc "Deno Lint を実行する"

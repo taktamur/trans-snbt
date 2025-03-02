@@ -174,10 +174,10 @@ async function main(): Promise<void> {
             const startsWithNewline = translatedText.startsWith("\n");
             
             if (problemPhrases.some((phrase) => translatedText.includes(phrase)) || startsWithNewline) {
-              console.log(`\n----- 翻訳エラー -----`);
-              console.log(`原文: "${item.en}"`);
-              console.log(`問題のある翻訳結果: "${translatedText}"`);
-              console.log(`----------------------\n`);
+              console.error(`\n----- 翻訳エラー -----`);
+              console.error(`原文: "${item.en}"`);
+              console.error(`問題のある翻訳結果: "${translatedText}"`);
+              console.error(`----------------------\n`);
               item.ja = "";
             } else {
               item.ja = translatedText;
