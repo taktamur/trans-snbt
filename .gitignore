@@ -22,7 +22,11 @@ node_modules/
 # Project specific
 .development.env
 chapters.zip
-*.snbt
 *.snbt.bak
 all.json
 dist/
+
+# SNBTファイル（サンプルファイルは除外）
+/chapters/*.snbt
+/trans-chapters/*.snbt
+!sample.snbt

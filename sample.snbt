@@ -1,0 +1,184 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "1__stone_age"
+	group: "592A9A0E9A131D28"
+	icon: "minecraft:stone"
+	id: "0D2887F1B436D1D7"
+	order_index: 0
+	quest_links: [ ]
+	quests: [
+		{
+			dependencies: ["045C683BF6E216CB"]
+			description: ["Pretty much following &evanilla progression&r here for a bit. I'll even give you a bit extra to help build a &2simple shelter&r or some more &9tools&r."]
+			id: "300516B03C1580A2"
+			rewards: [
+				{
+					count: 32
+					id: "5833D9B6DF294CC9"
+					item: "minecraft:cobblestone"
+					type: "item"
+				}
+				{
+					id: "7317066A06A324F7"
+					item: "kubejs:coin_common"
+					type: "item"
+				}
+				{
+					id: "59FA06E342F418A3"
+					type: "xp"
+					xp: 10
+				}
+			]
+			shape: "square"
+			subtitle: "You're now a caveman!"
+			tasks: [{
+				count: 16L
+				id: "7CC55C91038E66C3"
+				item: {
+					Count: 1b
+					id: "itemfilters:tag"
+					tag: {
+						value: "minecraft:stone_crafting_materials"
+					}
+				}
+				title: "Any Cobblestone"
+				type: "item"
+			}]
+			title: "The Stone Age"
+			x: -2.0d
+			y: 0.0d
+		}
+		{
+			description: ["This is the start to &a99% of any playthrough&r. You can explore the world a bit, but eventually you will need to make some &ebasic tools&r."]
+			id: "045C683BF6E216CB"
+			rewards: [
+				{
+					count: 16
+					id: "511F947A825BC323"
+					item: "minecraft:oak_log"
+					type: "item"
+				}
+				{
+					count: 4
+					id: "63B238BB617EDB85"
+					item: "minecraft:oak_sapling"
+					type: "item"
+				}
+				{
+					id: "4BA2CDA20B301C8C"
+					item: "kubejs:coin_common"
+					type: "item"
+				}
+				{
+					id: "1F1BCC9D5C07945D"
+					type: "xp"
+					xp: 10
+				}
+			]
+			shape: "square"
+			subtitle: "The noble start of any playthrough"
+			tasks: [{
+				count: 16L
+				id: "229519744915FFDA"
+				item: {
+					Count: 1b
+					id: "itemfilters:tag"
+					tag: {
+						value: "minecraft:logs"
+					}
+				}
+				title: "Any Logs"
+				type: "item"
+			}]
+			title: "Punch Trees"
+			x: -3.5d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4B07D0F2469CC1A7"]
+			dependency_requirement: "one_completed"
+			description: [
+				"The early game of this pack is focused around the &eCreate&r mod. For this, you will need a lot of &aAndesite&r. Luckily, this quest rewards you with &esome extra&r. Once you have a &6Bronze Mixer&r you will unlock a recipe to make &aAndesite&r renewable!"
+				""
+				"For those of you who don't like &eCreate&r, I've kept the &eCreate&r &crequirements low&r for the pack. You can &bchoose&r to pursue &eCreate&r further after you pass the parts where it is required, but &6fully progressing&r in &eCreate&r &cis not needed&r to beat the pack."
+			]
+			id: "0548E4DEA1B29E91"
+			rewards: [
+				{
+					count: 32
+					id: "05A64FF589146729"
+					item: "minecraft:andesite"
+					type: "item"
+				}
+				{
+					id: "28268F68FE9CD5D3"
+					item: "kubejs:coin_common"
+					type: "item"
+				}
+				{
+					id: "16B4DBB21E129A6D"
+					type: "xp"
+					xp: 10
+				}
+			]
+			shape: "square"
+			tasks: [{
+				count: 32L
+				id: "1DFDBFD89EC6C8D3"
+				item: "minecraft:andesite"
+				type: "item"
+			}]
+			title: "Prepare for Create"
+			x: 1.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0548E4DEA1B29E91"]
+			description: [
+				"&bAndesite Alloy&r is the most important material you will need for early game &eCreate&r. The crafting cost can be a &alittle steep at first&r, but once you create a &aMixer&r the cost will &2drop significantly&r."
+				""
+				"The &cWrench&r and &cGoggles&r will be your &6essential tools&r when using the &eCreate&r mod. The &cWrench&r allows you to &ashift-right click&r to &ainstantly harvest&r any &eCreate&r block, &aright-click&r to rotate, or adjust certain settings on a block. The &cGoggles&r, when worn, will allow you to see the &dtotal stress units&r used / available."
+			]
+			id: "13D6BD373F034937"
+			rewards: [
+				{
+					id: "44ACA01BA7C36F50"
+					item: "create:wrench"
+					type: "item"
+				}
+				{
+					id: "7C0E187609F7E623"
+					item: "create:goggles"
+					type: "item"
+				}
+				{
+					exclude_from_claim_all: true
+					id: "2A52A606A38D910A"
+					table_id: 1292583397374875582L
+					type: "random"
+				}
+				{
+					id: "38DA7051F03D98C0"
+					item: "kubejs:coin_common"
+					type: "item"
+				}
+				{
+					id: "20CDA32968881883"
+					type: "xp"
+					xp: 10
+				}
+			]
+			shape: "square"
+			tasks: [{
+				count: 8L
+				id: "4278485AD9706147"
+				item: "create:andesite_alloy"
+				type: "item"
+			}]
+			title: "Andesite Alloy"
+			x: 2.5d
+			y: 0.0d
+		}
+	]
+}
