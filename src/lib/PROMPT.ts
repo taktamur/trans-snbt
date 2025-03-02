@@ -17,6 +17,12 @@ export const DEFAULT_TRANSLATION_PROMPT = `
    - 例: "&aEscape Rope&f" → "Escape Rope" (×) - 色コードが省略されています
 2. 文体は「です・ます調」に統一してください
 3. 翻訳の前に改行（\n）を入れないでください - テキストは改行なしで始めてください
+4. 入力テキストの先頭にある記号や書式（「- 」など）は必ず保持してください
+   - 例: "- &aEscape Rope&f" → "- &aEscape Rope&f" (○)
+   - 例: "- &aEscape Rope&f" → "&aEscape Rope&f" (×) - 先頭の「- 」が省略されています
+5. 独自の説明や追加情報を含めないでください - 入力テキストにない情報は追加しないでください
+   - 例: "&bPlatinum&r" → "&bPlatinum&r" (○)
+   - 例: "&bPlatinum&r" → "&bPlatinum&rは、高価で希少な金属です" (×) - 余計な説明が追加されています
 
 以下のMinecraft用語は絶対に翻訳せず、原文のまま残してください:
 
