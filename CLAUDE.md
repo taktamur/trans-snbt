@@ -3,6 +3,7 @@
 ## ファイル構成
 
 - `extract.json`: Minecraft のクエストブックの英語と日本語の対を管理する JSON ファイル
+- `trans.json`: 翻訳処理用の JSON ファイル（.gitignore に含まれる）
 - `*.snbt`: Minecraft のクエストブックのファイル
 - `chapters/*.snbt`: 翻訳前のクエストブックファイル置き場
 - `trans-chapters/*.snbt`: 翻訳後のクエストブックファイル置き場

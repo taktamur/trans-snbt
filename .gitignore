@@ -25,8 +25,8 @@ chapters.zip
 *.snbt.bak
 all.json
 dist/
+trans.json
 
 # SNBTファイル（サンプルファイルは除外）
-/chapters/*.snbt
-/trans-chapters/*.snbt
+/**/*.snbt
 !sample.snbt
