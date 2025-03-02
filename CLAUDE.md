@@ -5,7 +5,9 @@
 ## ファイル構成
 
 - `src/translate.ts`: SNBT ファイルからテキストを抽出し、Claude API を使って翻訳する
-- `src/storage.ts`: 翻訳データの読み書きを行うユーティリティ関数
+- `src/translation.ts`: 翻訳データの読み書きを行うユーティリティ関数
+- `src/snbt.ts`: SNBTファイルからテキストを抽出する関数
+- `src/storage.ts`: SNBTファイルと翻訳データを連携する機能
 - `src/extract.ts`: SNBT ファイルから翻訳対象テキストを抽出するツール
 - `trans.json`: 翻訳データを管理する JSON ファイル（.gitignore に含まれる）
 - `*.snbt`: Minecraft のクエストブックのファイル

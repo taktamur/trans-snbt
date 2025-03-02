@@ -1,13 +1,6 @@
 import { parse } from "https://deno.land/std@0.213.0/flags/mod.ts";
-import { exists } from "https://deno.land/std/fs/mod.ts";
-import { 
-  TranslationData, 
-  TranslationItem, 
-  loadTranslationFile, 
-  saveTranslationFile,
-  getOrCreateTranslationData,
-  extractAndMergeTranslations
-} from "./storage.ts";
+import { extractAndMergeTranslations } from "./storage.ts";
+import { saveTranslationFile } from "./translation.ts";
 
 /**
  * Claude APIを使用して英語から日本語への翻訳を行う
