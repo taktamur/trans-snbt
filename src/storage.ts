@@ -1,5 +1,5 @@
 import { TranslationData } from "./lib/translation.ts";
-import { extractTextFromSnbt } from "./lib/snbt.ts";
+import { SnbtFile } from "./lib/snbt.ts";
 import { getOrCreateTranslationData } from "./lib/translation.ts";
 
 /**
@@ -13,7 +13,8 @@ export async function extractAndMergeTranslations(
   translationFilePath?: string
 ): Promise<TranslationData> {
   // SNBTファイルからテキストを抽出
-  const extractedTexts = await extractTextFromSnbt(snbtFilePath);
+  const snbtFile = new SnbtFile(snbtFilePath);
+  const extractedTexts = await snbtFile.extractText();
   console.log(`${extractedTexts.length}個のテキストを抽出しました。`);
   
   // 既存の翻訳データを読み込む（指定された場合）
