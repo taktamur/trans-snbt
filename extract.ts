@@ -11,7 +11,7 @@ interface Translation {
 const args = parse(Deno.args);
 if (args._.length < 2) {
   console.error(
-    "使用方法: deno run --allow-read --allow-write extract.ts <SNBTファイル> <出力JSONファイル>",
+    "使用方法: deno run --allow-read --allow-write extract.ts <SNBTファイル> <出力JSONファイル>"
   );
   Deno.exit(1);
 }
@@ -20,7 +20,7 @@ const snbtFilePath = String(args._[0]);
 const outputJsonPath = String(args._[1]);
 
 // SNBTファイルが存在するか確認
-if (!await exists(snbtFilePath)) {
+if (!(await exists(snbtFilePath))) {
   console.error(`エラー: SNBTファイル "${snbtFilePath}" が見つかりません。`);
   Deno.exit(1);
 }
@@ -48,7 +48,7 @@ if (await exists(outputJsonPath)) {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(
-      `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`,
+      `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`
     );
     existingTranslations = [];
   }
@@ -57,19 +57,11 @@ if (await exists(outputJsonPath)) {
 // SNBTファイルを読み込む
 const snbtContent = await Deno.readTextFile(snbtFilePath);
 
-// 翻訳対象のテキストを抽出するための正規表現パターン
-const titlePattern = /title: "([^"\\]*(\\.[^"\\]*)*)"/g;
-const subtitlePattern = /subtitle: "([^"\\]*(\\.[^"\\]*)*)"/g;
-// 説明文の配列内の各要素を検出する
-const descriptionPattern = /description: \[\s*"([^"\\]*(\\.[^"\\]*)*)"/g;
-const descriptionLinePattern =
-  /description: \[\s*(?:"(?:[^"\\]*(?:\\.[^"\\]*)*)"\s*,?\s*)+\s*"([^"\\]*(\\.[^"\\]*)*)"/g;
-
 // 説明文の配列内のすべての文字列を抽出する特別な関数
 const extractDescriptions = (content: string): string[] => {
   const matches: string[] = [];
-  const descriptionBlocks = content.match(/description:\s*\[([\s\S]*?)\]/g) ||
-    [];
+  const descriptionBlocks =
+    content.match(/description:\s*\[([\s\S]*?)\]/g) || [];
 
   for (const block of descriptionBlocks) {
     // 各ブロック内の引用符で囲まれた文字列を抽出
@@ -83,21 +75,6 @@ const extractDescriptions = (content: string): string[] => {
   return matches;
 };
 
-// 正規表現にマッチする全てのテキストを抽出
-const extractMatches = (pattern: RegExp, content: string): string[] => {
-  const matches: string[] = [];
-  let match;
-
-  while ((match = pattern.exec(content)) !== null) {
-    matches.push(match[1]);
-  }
-
-  return matches;
-};
-
-const titles = extractMatches(titlePattern, snbtContent);
-const subtitles = extractMatches(subtitlePattern, snbtContent);
-
 // 新しい方法で説明文を抽出
 const descriptionTexts = extractDescriptions(snbtContent);
 
@@ -110,8 +87,8 @@ const descriptions = descriptionTexts
 const addToTranslations = (texts: string[]) => {
   texts.forEach((text) => {
     // 既存の翻訳エントリを探す
-    const existingEntry = existingTranslations.find((entry) =>
-      entry.en === text
+    const existingEntry = existingTranslations.find(
+      (entry) => entry.en === text
     );
 
     if (!existingEntry) {
@@ -130,13 +107,10 @@ addToTranslations(descriptions);
 // 結果を出力
 console.log(`抽出結果: ${descriptions.length} 個のテキストを抽出しました。`);
 console.log(`- 説明文: ${descriptions.length} 個`);
-console.log(
-  `（タイトル ${titles.length} 個、サブタイトル ${subtitles.length} 個は抽出対象外）`,
-);
 
 // JSONファイルに保存
 await Deno.writeTextFile(
   outputJsonPath,
-  JSON.stringify(existingTranslations, null, 2),
+  JSON.stringify(existingTranslations, null, 2)
 );
 console.log(`翻訳データを "${outputJsonPath}" に保存しました。`);
