@@ -27,6 +27,7 @@ async function retryWithExponentialBackoff<T>(
     try {
       return await fn();
     } catch (error) {
+      console.log(error);
       if (retries >= maxRetries) {
         throw error;
       }
@@ -53,78 +54,6 @@ async function retryWithExponentialBackoff<T>(
       }
     }
   }
-}
-
-async function translateWithGemini(text: string): Promise<string> {
-  const apiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY環境変数が設定されていません");
-  }
-
-  return await retryWithExponentialBackoff(
-    async () => {
-      // Gemini API エンドポイント
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" +
-          apiKey,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: DEFAULT_TRANSLATION_PROMPT,
-                  },
-                  {
-                    text: text,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              maxOutputTokens: 1024,
-              temperature: 0.2,
-              topP: 0.95,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        const errorObj = JSON.parse(errorText);
-        // 429エラーの場合は特別なメッセージを追加
-        if (response.status === 429) {
-          Deno.stderr.writeSync(new TextEncoder().encode(`Gemini API クォータ制限エラー: ${response.status} ${errorText}\n`));
-          throw new Error(`Gemini API クォータ制限エラー: 日次または月次のAPIクォータを使い切った可能性があります。
-Google AI Studioでクォータを確認してください: https://aistudio.google.com/app/apikeys`);
-        }
-        throw new Error(`Gemini API エラー: ${response.status} ${errorText}`);
-      }
-
-      const result = await response.json();
-
-      // Geminiの応答から翻訳テキストを抽出
-      if (
-        result.candidates &&
-        result.candidates.length > 0 &&
-        result.candidates[0].content &&
-        result.candidates[0].content.parts &&
-        result.candidates[0].content.parts.length > 0
-      ) {
-        return result.candidates[0].content.parts[0].text;
-      } else {
-        throw new Error("Gemini APIからの応答形式が不正です");
-      }
-    },
-    5,
-    2000
-  );
 }
 
 /**
@@ -170,7 +99,7 @@ async function translateWithClaude(text: string): Promise<string> {
       }
 
       const result = await response.json();
-      
+
       // 翻訳テキストをそのまま返す
       return result.content[0].text;
     },
