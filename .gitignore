@@ -1,24 +1,17 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+# Deno
+.env
+.env.local
+.DS_Store
+.vscode/
+*.orig
+*.pyc
+*.swp
+
+# Deno cache/build
+deno.lock
+.deno/
+npm/
+node_modules/
 
 # macOS
 .DS_Store
@@ -26,13 +19,10 @@ var/
 .LSOverride
 ._*
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
 # Project specific
+.development.env
 chapters.zip
 *.snbt
 *.snbt.bak
+all.json
+dist/
