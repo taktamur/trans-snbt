@@ -94,6 +94,8 @@ async function translateWithClaude(text: string): Promise<string> {
       }
 
       const result = await response.json();
+      
+      // 翻訳テキストをそのまま返す
       return result.content[0].text;
     },
     5,
@@ -151,8 +153,8 @@ async function main(): Promise<void> {
           try {
             const translatedText = await translateWithClaude(item.en);
 
-            if (
-              [
+            // 問題のある前置きや余計な文字を検出
+            const problemPhrases = [
                 "Human:",
                 "申し訳ありませんが",
                 "以下のように翻訳",
@@ -166,11 +168,16 @@ async function main(): Promise<void> {
                 "私には、著作権で保護された",
                 "著作権保護の対象",
                 "著作権の関係",
-              ].some((phrase) => translatedText.includes(phrase))
-            ) {
-              console.log(
-                `"${item.en}"の翻訳結果に問題があります。スキップします。`
-              );
+              ];
+            
+            // 改行で始まるかチェック
+            const startsWithNewline = translatedText.startsWith("\n");
+            
+            if (problemPhrases.some((phrase) => translatedText.includes(phrase)) || startsWithNewline) {
+              console.log(`\n----- 翻訳エラー -----`);
+              console.log(`原文: "${item.en}"`);
+              console.log(`問題のある翻訳結果: "${translatedText}"`);
+              console.log(`----------------------\n`);
               item.ja = "";
             } else {
               item.ja = translatedText;
