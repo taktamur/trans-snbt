@@ -16,9 +16,9 @@ export interface TranslationData {
 }
 
 /**
- * 従来の翻訳データの配列形式
+ * 翻訳データの配列形式
  */
-export interface TranslationArray extends Array<TranslationItem> {}
+export type TranslationArray = TranslationItem[];
 
 /**
  * JSONファイルから翻訳データを読み込む
@@ -29,24 +29,25 @@ export async function loadTranslationFile(filePath: string): Promise<Translation
   try {
     const content = await Deno.readTextFile(filePath);
     
-    // JSONの形式を確認し、必要に応じて変換する
+    // JSONを配列として解析
     const parsed = JSON.parse(content);
     
-    // 配列形式の場合はオブジェクト形式に変換
-    if (Array.isArray(parsed)) {
-      const result: TranslationData = {};
-      for (const item of parsed) {
-        if (item.en) {
-          result[item.en] = {
-            en: item.en,
-            ja: item.ja || item.translated || "",
-          };
-        }
-      }
-      return result;
+    // 配列形式からオブジェクト形式に変換
+    if (!Array.isArray(parsed)) {
+      throw new Error("翻訳ファイルの形式が無効です。配列形式である必要があります。");
     }
     
-    return parsed as TranslationData;
+    const result: TranslationData = {};
+    for (const item of parsed) {
+      if (item.en) {
+        result[item.en] = {
+          en: item.en,
+          ja: item.ja || "",
+        };
+      }
+    }
+    
+    return result;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`ファイルの読み込みエラー: ${errorMessage}`);
@@ -58,24 +59,14 @@ export async function loadTranslationFile(filePath: string): Promise<Translation
  * 翻訳データをJSONファイルに保存する
  * @param filePath 保存先ファイルパス
  * @param data 翻訳データオブジェクト
- * @param format データ形式 ('object'または'array')
  */
 export async function saveTranslationFile(
   filePath: string,
-  data: TranslationData,
-  format: 'object' | 'array' = 'object'
+  data: TranslationData
 ): Promise<void> {
   try {
-    let saveData: TranslationData | TranslationItem[];
-    
-    // 指定された形式に変換
-    if (format === 'array') {
-      // オブジェクトから配列へ変換
-      saveData = Object.values(data);
-    } else {
-      // そのままオブジェクト形式で保存
-      saveData = data;
-    }
+    // オブジェクトから配列へ変換
+    const saveData: TranslationArray = Object.values(data);
     
     await Deno.writeTextFile(filePath, JSON.stringify(saveData, null, 2));
     console.log(`翻訳データを${filePath}に保存しました`);

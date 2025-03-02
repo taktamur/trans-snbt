@@ -26,8 +26,8 @@ async function main(): Promise<void> {
     // 結果を出力
     console.log(`抽出結果: ${Object.keys(translationData).length} 個のテキスト（未翻訳: ${untranslatedCount}件）`);
     
-    // JSONファイルに保存（旧バージョンとの互換性のために配列形式で保存）
-    await saveTranslationFile(outputJsonPath, translationData, 'array');
+    // JSONファイルに保存
+    await saveTranslationFile(outputJsonPath, translationData);
     
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
