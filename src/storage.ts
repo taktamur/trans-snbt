@@ -1,6 +1,6 @@
-import { TranslationData } from "./translation.ts";
-import { extractTextFromSnbt } from "./snbt.ts";
-import { getOrCreateTranslationData } from "./translation.ts";
+import { TranslationData } from "./lib/translation.ts";
+import { extractTextFromSnbt } from "./lib/snbt.ts";
+import { getOrCreateTranslationData } from "./lib/translation.ts";
 
 /**
  * SNBTファイルから翻訳テキストを抽出し、既存の翻訳データと統合する

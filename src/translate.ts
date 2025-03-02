@@ -1,6 +1,6 @@
 import { parse } from "https://deno.land/std@0.213.0/flags/mod.ts";
 import { extractAndMergeTranslations } from "./storage.ts";
-import { saveTranslationFile } from "./translation.ts";
+import { saveTranslationFile } from "./lib/translation.ts";
 
 /**
  * Claude APIを使用して英語から日本語への翻訳を行う

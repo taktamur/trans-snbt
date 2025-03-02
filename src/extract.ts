@@ -1,7 +1,7 @@
 // SNBT ファイルから翻訳対象のテキストを抽出して JSON ファイルに保存する
 import { parse } from "https://deno.land/std/flags/mod.ts";
 import { extractAndMergeTranslations } from "./storage.ts";
-import { saveTranslationFile } from "./translation.ts";
+import { saveTranslationFile } from "./lib/translation.ts";
 
 // 引数を解析
 const args = parse(Deno.args);
