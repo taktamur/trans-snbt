@@ -6,6 +6,6 @@ end
 desc "SNBTファイルから翻訳用JSONを生成する"
 task :extract do
   Dir.glob("chapters/*.snbt").each do |snbt_file|
-    sh "deno run --allow-read --allow-write extract.ts #{snbt_file} trans.json"
+    sh "deno run --allow-read --allow-write src/extract.ts #{snbt_file} trans.json"
   end
 end

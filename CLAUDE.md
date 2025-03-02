@@ -4,8 +4,9 @@
 
 ## ファイル構成
 
-- `translate.ts`: SNBT ファイルからテキストを抽出し、Claude API を使って翻訳する
-- `storage.ts`: 翻訳データの読み書きを行うユーティリティ関数
+- `src/translate.ts`: SNBT ファイルからテキストを抽出し、Claude API を使って翻訳する
+- `src/storage.ts`: 翻訳データの読み書きを行うユーティリティ関数
+- `src/extract.ts`: SNBT ファイルから翻訳対象テキストを抽出するツール
 - `trans.json`: 翻訳データを管理する JSON ファイル（.gitignore に含まれる）
 - `*.snbt`: Minecraft のクエストブックのファイル
 - `chapters/*.snbt`: 翻訳前のクエストブックファイル置き場
@@ -14,15 +15,18 @@
 
 ## 開発コマンド
 
-- 翻訳処理（抽出→翻訳）: `deno run --allow-read --allow-write --allow-net --allow-env translate.ts <SNBTファイル>`
+- 翻訳対象テキスト抽出: `deno run --allow-read --allow-write src/extract.ts <SNBTファイル> <出力JSONファイル>`
+- 翻訳処理: `deno run --allow-read --allow-write --allow-net --allow-env src/translate.ts <SNBTファイル>`
   - 必要な環境変数: `ANTHROPIC_API_KEY` (Claude API 用)
   - 翻訳データは `trans.json` に保存される
-- 翻訳済み SNBT 生成: `deno run --allow-read --allow-write create.ts <元SNBTファイル> <出力SNBTファイル>`
 - コード整形: `deno fmt`
 - リント: `deno lint`
-- 型チェック: `deno check *.ts`
-- 個別ファイル実行: `deno run --allow-read --allow-write <ファイル名>.ts`
+- 型チェック: `deno check src/*.ts`
+- 個別ファイル実行: `deno run --allow-read --allow-write src/<ファイル名>.ts`
 - 依存関係更新: `deno cache --lock=deno.lock --lock-write`
+- Rakeタスク:
+  - 全SNBT抽出: `rake extract` (chapters/*.snbtから翻訳用JSONを生成)
+  - クリーンアップ: `rake clear` (trans-chaptersディレクトリとtrans.jsonを削除)
 
 ## コードスタイル規約
 
