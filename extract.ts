@@ -1,11 +1,9 @@
 // SNBT ファイルから翻訳対象のテキストを抽出して JSON ファイルに保存する
 import { parse } from "https://deno.land/std/flags/mod.ts";
-import { exists } from "https://deno.land/std/fs/mod.ts";
-
-interface Translation {
-  en: string;
-  ja: string;
-}
+import { 
+  extractAndMergeTranslations, 
+  saveTranslationFile 
+} from "./storage.ts";
 
 // 引数を解析
 const args = parse(Deno.args);
@@ -19,98 +17,27 @@ if (args._.length < 2) {
 const snbtFilePath = String(args._[0]);
 const outputJsonPath = String(args._[1]);
 
-// SNBTファイルが存在するか確認
-if (!(await exists(snbtFilePath))) {
-  console.error(`エラー: SNBTファイル "${snbtFilePath}" が見つかりません。`);
-  Deno.exit(1);
-}
-
-// 既存の翻訳データを読み込む（存在する場合）
-let existingTranslations: Translation[] = [];
-if (await exists(outputJsonPath)) {
+async function main(): Promise<void> {
   try {
-    const jsonContent = await Deno.readTextFile(outputJsonPath);
-    const parsed = JSON.parse(jsonContent);
-
-    // 既存のデータがオブジェクト形式の場合は配列に変換する
-    if (!Array.isArray(parsed)) {
-      Object.values(parsed).forEach((item: any) => {
-        existingTranslations.push({
-          en: item.en || item.original || "",
-          ja: item.ja || item.translated || "",
-        });
-      });
-    } else {
-      existingTranslations = parsed;
-    }
-
-    console.log(`既存の翻訳データを "${outputJsonPath}" から読み込みました。`);
+    // SNBTファイルからテキストを抽出し、既存データと統合
+    const translationData = await extractAndMergeTranslations(snbtFilePath, outputJsonPath);
+    
+    // 未翻訳のテキストをカウント
+    const untranslatedCount = Object.values(translationData).filter(item => !item.ja).length;
+    
+    // 結果を出力
+    console.log(`抽出結果: ${Object.keys(translationData).length} 個のテキスト（未翻訳: ${untranslatedCount}件）`);
+    
+    // JSONファイルに保存（旧バージョンとの互換性のために配列形式で保存）
+    await saveTranslationFile(outputJsonPath, translationData, 'array');
+    
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`
-    );
-    existingTranslations = [];
+    console.error(`エラーが発生しました: ${errorMessage}`);
+    Deno.exit(1);
   }
 }
 
-// SNBTファイルを読み込む
-const snbtContent = await Deno.readTextFile(snbtFilePath);
-
-// 説明文の配列内のすべての文字列を抽出する特別な関数
-const extractDescriptions = (content: string): string[] => {
-  const matches: string[] = [];
-  const descriptionBlocks =
-    content.match(/description:\s*\[([\s\S]*?)\]/g) || [];
-
-  for (const block of descriptionBlocks) {
-    // 各ブロック内の引用符で囲まれた文字列を抽出
-    const stringMatches = block.match(/"([^"\\]*(\\.[^"\\]*)*)"/g) || [];
-    for (const stringMatch of stringMatches) {
-      // 引用符を削除して配列に追加
-      matches.push(stringMatch.slice(1, -1));
-    }
-  }
-
-  return matches;
-};
-
-// 新しい方法で説明文を抽出
-const descriptionTexts = extractDescriptions(snbtContent);
-
-// 空文字と重複を削除
-const descriptions = descriptionTexts
-  .filter((line) => line.trim() !== "") // 空行を削除
-  .filter((line, index, self) => self.indexOf(line) === index); // 重複を削除
-
-// 抽出したテキストを翻訳リストに追加
-const addToTranslations = (texts: string[]) => {
-  texts.forEach((text) => {
-    // 既存の翻訳エントリを探す
-    const existingEntry = existingTranslations.find(
-      (entry) => entry.en === text
-    );
-
-    if (!existingEntry) {
-      // 新しいエントリを追加
-      existingTranslations.push({
-        en: text,
-        ja: "",
-      });
-    }
-  });
-};
-
-// 説明文のみを追加（タイトルとサブタイトルは除外）
-addToTranslations(descriptions);
-
-// 結果を出力
-console.log(`抽出結果: ${descriptions.length} 個のテキストを抽出しました。`);
-console.log(`- 説明文: ${descriptions.length} 個`);
-
-// JSONファイルに保存
-await Deno.writeTextFile(
-  outputJsonPath,
-  JSON.stringify(existingTranslations, null, 2)
-);
-console.log(`翻訳データを "${outputJsonPath}" に保存しました。`);
+if (import.meta.main) {
+  main();
+}
