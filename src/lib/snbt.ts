@@ -44,7 +44,7 @@ export class SnbtFile {
     if (this.content === null) {
       await this.load();
     }
-    
+
     // 抽出したテキストを返す
     return this.extractDescriptions();
   }
@@ -56,9 +56,11 @@ export class SnbtFile {
    */
   private extractDescriptions(): string[] {
     if (this.content === null) {
-      throw new Error("ファイル内容が読み込まれていません。先にload()を呼び出してください。");
+      throw new Error(
+        "ファイル内容が読み込まれていません。先にload()を呼び出してください。",
+      );
     }
-    
+
     const matches: string[] = [];
     const descriptionBlocks =
       this.content.match(/description:\s*\[([\s\S]*?)\]/g) || [];
@@ -93,7 +95,9 @@ export class SnbtFile {
    */
   getContent(): string {
     if (this.content === null) {
-      throw new Error("ファイル内容が読み込まれていません。先にload()を呼び出してください。");
+      throw new Error(
+        "ファイル内容が読み込まれていません。先にload()を呼び出してください。",
+      );
     }
     return this.content;
   }
@@ -117,8 +121,8 @@ export async function extractTextFromSnbt(filePath: string): Promise<string[]> {
  */
 export function extractDescriptions(content: string): string[] {
   const matches: string[] = [];
-  const descriptionBlocks =
-    content.match(/description:\s*\[([\s\S]*?)\]/g) || [];
+  const descriptionBlocks = content.match(/description:\s*\[([\s\S]*?)\]/g) ||
+    [];
 
   for (const block of descriptionBlocks) {
     // 各ブロック内の引用符で囲まれた文字列を抽出

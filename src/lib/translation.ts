@@ -26,7 +26,7 @@ export type TranslationArray = TranslationItem[];
  * @returns 翻訳データオブジェクト
  */
 export async function loadTranslationFile(
-  filePath: string
+  filePath: string,
 ): Promise<TranslationArray> {
   try {
     const content = await Deno.readTextFile(filePath);
@@ -37,7 +37,7 @@ export async function loadTranslationFile(
     // 配列形式からオブジェクト形式に変換
     if (!Array.isArray(parsed)) {
       throw new Error(
-        "翻訳ファイルの形式が無効です。配列形式である必要があります。"
+        "翻訳ファイルの形式が無効です。配列形式である必要があります。",
       );
     }
     return parsed;
@@ -66,7 +66,7 @@ export async function loadTranslationFile(
  */
 export async function saveTranslationFile(
   filePath: string,
-  data: TranslationArray
+  data: TranslationArray,
 ): Promise<void> {
   try {
     // オブジェクトから配列へ変換
@@ -87,7 +87,7 @@ export async function saveTranslationFile(
  * @returns 翻訳データオブジェクト
  */
 export async function getOrCreateTranslationData(
-  filePath: string
+  filePath: string,
 ): Promise<TranslationArray> {
   let translationArray: TranslationArray = [];
 
@@ -96,10 +96,11 @@ export async function getOrCreateTranslationData(
       console.log(`既存の翻訳データを読み込んでいます...`);
       translationArray = await loadTranslationFile(filePath);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error
+        ? error.message
+        : String(error);
       console.error(
-        `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`
+        `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`,
       );
       translationArray = [];
     }

@@ -10,7 +10,7 @@ import { getOrCreateTranslationData } from "./lib/translation.ts";
  */
 export async function extractAndMergeTranslations(
   snbtFilePath: string,
-  translationFilePath?: string
+  translationFilePath?: string,
 ): Promise<TranslationArray> {
   // SNBTファイルからテキストを抽出
   const snbtFile = new SnbtFile(snbtFilePath);

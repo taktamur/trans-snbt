@@ -1,6 +1,8 @@
 import { parse } from "https://deno.land/std@0.213.0/flags/mod.ts";
-import { extractAndMergeTranslations } from "./storage.ts";
-import { saveTranslationFile } from "./lib/translation.ts";
+import {
+  getOrCreateTranslationData,
+  saveTranslationFile,
+} from "./lib/translation.ts";
 
 /**
  * Claude APIを使用して英語から日本語への翻訳を行う
@@ -111,27 +113,32 @@ ${text}
 async function main(): Promise<void> {
   try {
     const args = parse(Deno.args);
-    const inputFile = args._[0]?.toString();
+    const transDictJsonFile = args._[0]?.toString();
 
-    if (!inputFile) {
+    if (!transDictJsonFile) {
       console.error(
         "使用方法: deno run --allow-read --allow-write --allow-net --allow-env translate.ts <翻訳jsonファイル>"
       );
       Deno.exit(1);
     }
 
-    // SNBTファイルからテキストを抽出し、trans.jsonのデータと統合
-    console.log(`SNBTファイル ${inputFile} からテキストを抽出しています...`);
+    // 翻訳jsonファイルを読み込み
+    console.log(
+      `jsonファイル ${transDictJsonFile} からテキストを抽出しています...`
+    );
 
     try {
       // テキスト抽出と既存データの統合
-      const translationData = await extractAndMergeTranslations(
-        inputFile,
-        "trans.json"
+      // const translationData = await extractAndMergeTranslations(
+      //   transDictJsonFile,
+      //   "trans.json"
+      // );
+      const translationArray = await getOrCreateTranslationData(
+        transDictJsonFile
       );
 
       // 未翻訳のテキストをカウント
-      const untranslatedCount = Object.values(translationData).filter(
+      const untranslatedCount = translationArray.filter(
         (item) => !item.ja
       ).length;
       console.log(`未翻訳テキスト: ${untranslatedCount}件`);
@@ -145,37 +152,38 @@ async function main(): Promise<void> {
       let translatedCount = 0;
 
       // 各テキストを翻訳
-      for (const [key, item] of Object.entries(translationData)) {
+      for (const item of translationArray) {
         if (!item.ja) {
           try {
-            console.log(`翻訳中: ${key}`);
+            console.log(`翻訳中: ${item.en}`);
             const translatedText = await translateWithClaude(item.en);
-            
-            // 問題のある翻訳パターンをチェック
+
             if (
-              translatedText.includes("Human:") || 
-              translatedText.includes("申し訳ありませんが") ||
-              translatedText.includes("以下のように翻訳") ||
-              translatedText.includes("翻訳は以下の通り") ||
-              translatedText.includes("翻訳結果は以下") ||
-              translatedText.includes("はい、") ||
-              translatedText.includes("わかりました") ||
-              translatedText.includes("理解しました") ||
-              translatedText.includes("私には、著作権で保護された") ||
-              translatedText.includes("著作権保護の対象") ||
-              translatedText.includes("著作権の関係")
+              [
+                "Human:",
+                "申し訳ありませんが",
+                "以下のように翻訳",
+                "翻訳は以下の通り",
+                "翻訳結果は以下",
+                "はい、",
+                "わかりました",
+                "理解しました",
+                "私には、著作権で保護された",
+                "著作権保護の対象",
+                "著作権の関係",
+              ].some((phrase) => translatedText.includes(phrase))
             ) {
-              console.log(`"${key}"の翻訳結果に問題があります。スキップします。`);
-              // 空の文字列として記録（後で再翻訳できるように）
+              console.log(
+                `"${item.en}"の翻訳結果に問題があります。スキップします。`
+              );
               item.ja = "";
             } else {
               item.ja = translatedText;
               translatedCount++;
             }
 
-            // 途中経過を保存（5件ごと）
             if (translatedCount % 5 === 0) {
-              await saveTranslationFile("trans.json", translationData);
+              await saveTranslationFile("trans.json", translationArray);
               console.log(
                 `進捗: ${translatedCount}/${untranslatedCount}件翻訳完了`
               );
@@ -183,15 +191,17 @@ async function main(): Promise<void> {
           } catch (error: unknown) {
             const errorMessage =
               error instanceof Error ? error.message : String(error);
-            console.error(`"${key}"の翻訳中にエラーが発生: ${errorMessage}`);
-            await saveTranslationFile("trans.json", translationData);
+            console.error(
+              `"${item.en}"の翻訳中にエラーが発生: ${errorMessage}`
+            );
+            await saveTranslationFile("trans.json", translationArray);
             break;
           }
         }
       }
 
       // 最終結果を保存
-      await saveTranslationFile("trans.json", translationData);
+      await saveTranslationFile("trans.json", translationArray);
       console.log(
         `翻訳完了: ${translatedCount}/${untranslatedCount}件のテキストを翻訳しました`
       );
