@@ -8,12 +8,12 @@ export interface TranslationItem {
   ja?: string;
 }
 
-/**
- * 翻訳データ全体を表すインターフェース（オブジェクト形式）
- */
-export interface TranslationData {
-  [key: string]: TranslationItem;
-}
+// /**
+//  * 翻訳データ全体を表すインターフェース（オブジェクト形式）
+//  */
+// export interface TranslationData {
+//   [key: string]: TranslationItem;
+// }
 
 /**
  * 翻訳データの配列形式
@@ -25,29 +25,33 @@ export type TranslationArray = TranslationItem[];
  * @param filePath JSONファイルのパス
  * @returns 翻訳データオブジェクト
  */
-export async function loadTranslationFile(filePath: string): Promise<TranslationData> {
+export async function loadTranslationFile(
+  filePath: string
+): Promise<TranslationArray> {
   try {
     const content = await Deno.readTextFile(filePath);
-    
+
     // JSONを配列として解析
     const parsed = JSON.parse(content);
-    
+
     // 配列形式からオブジェクト形式に変換
     if (!Array.isArray(parsed)) {
-      throw new Error("翻訳ファイルの形式が無効です。配列形式である必要があります。");
+      throw new Error(
+        "翻訳ファイルの形式が無効です。配列形式である必要があります。"
+      );
     }
-    
-    const result: TranslationData = {};
-    for (const item of parsed) {
-      if (item.en) {
-        result[item.en] = {
-          en: item.en,
-          ja: item.ja || "",
-        };
-      }
-    }
-    
-    return result;
+    return parsed;
+    // const result: TranslationData = {};
+    // for (const item of parsed) {
+    //   if (item.en) {
+    //     result[item.en] = {
+    //       en: item.en,
+    //       ja: item.ja || "",
+    //     };
+    //   }
+    // }
+
+    // return result;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`ファイルの読み込みエラー: ${errorMessage}`);
@@ -62,12 +66,12 @@ export async function loadTranslationFile(filePath: string): Promise<Translation
  */
 export async function saveTranslationFile(
   filePath: string,
-  data: TranslationData
+  data: TranslationArray
 ): Promise<void> {
   try {
     // オブジェクトから配列へ変換
-    const saveData: TranslationArray = Object.values(data);
-    
+    const saveData = data;
+
     await Deno.writeTextFile(filePath, JSON.stringify(saveData, null, 2));
     console.log(`翻訳データを${filePath}に保存しました`);
   } catch (error: unknown) {
@@ -82,19 +86,24 @@ export async function saveTranslationFile(
  * @param filePath 読み込むファイルのパス
  * @returns 翻訳データオブジェクト
  */
-export async function getOrCreateTranslationData(filePath: string): Promise<TranslationData> {
-  let translationData: TranslationData = {};
-  
+export async function getOrCreateTranslationData(
+  filePath: string
+): Promise<TranslationArray> {
+  let translationArray: TranslationArray = [];
+
   if (await exists(filePath)) {
     try {
       console.log(`既存の翻訳データを読み込んでいます...`);
-      translationData = await loadTranslationFile(filePath);
+      translationArray = await loadTranslationFile(filePath);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`);
-      translationData = {};
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error(
+        `警告: 既存の翻訳ファイルの読み込みに失敗しました: ${errorMessage}`
+      );
+      translationArray = [];
     }
   }
-  
-  return translationData;
+
+  return translationArray;
 }
