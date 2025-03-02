@@ -3,6 +3,7 @@ import {
   getOrCreateTranslationData,
   saveTranslationFile,
 } from "./lib/translation.ts";
+import { DEFAULT_TRANSLATION_PROMPT } from "./lib/PROMPT.ts";
 
 /**
  * Claude APIを使用して英語から日本語への翻訳を行う
@@ -71,24 +72,17 @@ async function translateWithClaude(text: string): Promise<string> {
         body: JSON.stringify({
           model: "claude-3-haiku-20240307",
           max_tokens: 1000,
+          system: [
+            {
+              type: "text",
+              text: DEFAULT_TRANSLATION_PROMPT,
+              cache_control: { type: "ephemeral" },
+            },
+          ],
           messages: [
             {
               role: "user",
-              content: `
-次の英語テキストを自然な日本語に翻訳してください。Minecraftのクエストブック用のテキストです。
-ゲーム用語はできるだけ既存の日本語訳に合わせてください。
-
-重要: 
-- 翻訳内容だけを出力してください
-- 「以下のように翻訳しました」や「翻訳は以下の通りです」などの前置きは一切つけないでください
-- 「はい」「わかりました」などの返事も不要です
-- 「申し訳ありませんが」などの謝罪文も含めないでください
-- 質問、コメント、説明を一切含めないでください
-- 入力されたテキストを直接日本語に変換した結果のみを返してください
-
-翻訳対象:
-${text}
-            `,
+              content: text,
             },
           ],
         }),
@@ -155,7 +149,6 @@ async function main(): Promise<void> {
       for (const item of translationArray) {
         if (!item.ja) {
           try {
-            console.log(`翻訳中: ${item.en}`);
             const translatedText = await translateWithClaude(item.en);
 
             if (
@@ -163,8 +156,10 @@ async function main(): Promise<void> {
                 "Human:",
                 "申し訳ありませんが",
                 "以下のように翻訳",
+                "次のように翻訳",
                 "翻訳は以下の通り",
                 "翻訳結果は以下",
+                "翻訳結果:",
                 "はい、",
                 "わかりました",
                 "理解しました",
