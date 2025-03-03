@@ -1,4 +1,5 @@
 import { exists } from "https://deno.land/std/fs/mod.ts";
+import { TranslationArray } from "./translation.ts";
 
 /**
  * SNBTファイルを処理するクラス
@@ -100,6 +101,55 @@ export class SnbtFile {
       );
     }
     return this.content;
+  }
+
+  /**
+   * 翻訳されたテキストをSNBTファイルに適用する
+   * @param translations 翻訳データ配列
+   * @param outputPath 保存先ファイルパス
+   * @returns 置換された行数
+   */
+  async applyTranslations(
+    translations: TranslationArray,
+    outputPath: string,
+  ): Promise<number> {
+    if (this.content === null) {
+      throw new Error(
+        "ファイル内容が読み込まれていません。先にload()を呼び出してください。",
+      );
+    }
+
+    let modifiedContent = this.content;
+    let replacementCount = 0;
+
+    // 英語テキストを翻訳済みテキストで置換
+    for (const translation of translations) {
+      // 翻訳データがないものはスキップ
+      if (!translation.ja) continue;
+
+      // 特殊文字をエスケープ
+      const escapedText = translation.en.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      // description内のテキストを検索して置換
+      const regex = new RegExp(
+        `(description:\\s*\\[[^\\]]*?)"${escapedText}"([^\\]]*?\\])`,
+        "g",
+      );
+      const replacement = `$1"${translation.ja}"$2`;
+
+      const newContent = modifiedContent.replace(regex, replacement);
+      if (newContent !== modifiedContent) {
+        replacementCount++;
+        modifiedContent = newContent;
+      }
+    }
+
+    // 変更があれば新しいファイルに保存
+    if (replacementCount > 0) {
+      await Deno.writeTextFile(outputPath, modifiedContent);
+    }
+
+    return replacementCount;
   }
 }
 
