@@ -234,12 +234,20 @@ async function main(): Promise<void> {
 
             // 改行で始まるかチェック
             const startsWithNewline = translatedText.startsWith("\n");
+            
+            // 新しい形式のチェック: 元の英語テキスト + 日本語訳の形式になっているか
+            const containsOriginalText = translatedText.includes(item.en);
+            
+            // 元の文字列から始まっているかチェック（より厳密なチェック）
+            const startsWithOriginalText = translatedText.startsWith(item.en);
 
             if (
               problemPhrases.some((phrase) =>
                 translatedText.includes(phrase)
               ) ||
-              startsWithNewline
+              startsWithNewline ||
+              !containsOriginalText ||
+              !startsWithOriginalText
             ) {
               console.error(`\n----- 翻訳エラー -----`);
               console.error(`原文: "${item.en}"`);
